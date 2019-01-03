@@ -5,43 +5,53 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
-  Alert,
+  ActivityIndicator,
   StyleSheet
 } from "react-native";
 const styles = StyleSheet.create({
-  button: {
-    position: "absolute",
-    bottom: 0,
-    left: 0
+  footer: {
+    height: 40
   }
 });
 
 export default class DisplayApodlist extends Component {
   _keyExtractor = (item, index) => item.date;
   _onPressButton() {
-    Alert.alert("You tapped the button!");
+    console.log("Hi");
   }
 
   render() {
-    console.log(this.props.images);
+    // console.log(this.props.images);
+    // console.log(this.props.images.length);
+    // let activeindicator;
+    // if (this.props.images.length === 0) {
+    //   activeindicator = <ActivityIndicator size="large" color="#0000ff" />;
+    // } else {
+    //   activeindicator = null;
+    // }
+
     return (
-      <FlatList
-        data={this.props.images}
-        keyExtractor={this._keyExtractor}
-        renderItem={({ item }) => (
-          <View>
-            <TouchableOpacity onPress={this._onPressButton}>
-              <Image
-                style={{ width: 100, height: 100 }}
-                source={{
-                  uri: item.url
-                }}
-              />
-            </TouchableOpacity>
-            <Text>{item.title}</Text>
-          </View>
-        )}
-      />
+      <View>
+        <FlatList
+          data={this.props.images}
+          keyExtractor={this._keyExtractor}
+          renderItem={({ item }) => (
+            <View>
+              <TouchableOpacity onPress={this._onPressButton}>
+                <Image
+                  style={{ width: 100, height: 100 }}
+                  source={{
+                    uri: item.url
+                  }}
+                />
+              </TouchableOpacity>
+              <Text>{item.title}</Text>
+              <Text>{item.date}</Text>
+            </View>
+          )}
+          ListFooterComponent={() => <View style={styles.footer} />}
+        />
+      </View>
     );
   }
 }

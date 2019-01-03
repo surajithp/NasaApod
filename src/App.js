@@ -7,54 +7,75 @@
  */
 
 import React, { Component } from "react";
-import { Platform, StyleSheet, Text, View, Image } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Dimensions,
+  Button
+} from "react-native";
 import axios from "axios";
 import DisplayApodslist from "./DisplayApodslist";
-import LoadMore from "./LoadMore";
+const dimensions = Dimensions.get("window");
+const styles = StyleSheet.create({
+  display: {
+    height: dimensions.height-30,
+    width: dimensions.width
+  },
+  button: {
+    position: "absolute",
+    bottom: 0,
+    right: 0
+  }
+});
 
 export default class App extends Component {
   state = { data: [], startdate: null };
 
   componentWillMount = async () => {
-    todaydate = new Date().toISOString().slice(0, 10);
     let moment = require("moment");
-    const tendays = moment()
-      .subtract(8, "days")
-      .calendar();
-    const tendaysformat = moment(`${tendays}`).format("YYYY-MM-DD");
+    const todaydate = moment().format("YYYY-MM-DD");
+    const start_date = moment()
+      .subtract(9, "days")
+      .format("YYYY-MM-DD");
     const response = await axios.get(
-      `https://api.nasa.gov/planetary/apod?api_key=YPnh5fLrnPlqbVeCN86tba4qEEqrh9DrlLgkphhS&start_date=${tendaysformat}&end_date=${todaydate}`
+      `https://api.nasa.gov/planetary/apod?api_key=YPnh5fLrnPlqbVeCN86tba4qEEqrh9DrlLgkphhS&start_date=${start_date}&end_date=${todaydate}`
     );
-    console.log(response);
     imagedata = response.data;
-    this.setState({ data: imagedata, startdate: tendaysformat });
+    imagedata.reverse();
+    this.setState({ data: imagedata, startdate: start_date });
   };
 
   loadMore = async () => {
     const previousenddate = this.state.startdate;
     let moment = require("moment");
-    const enddate=moment(`${previousenddate}`).subtract(1,"days").format("YYYY-MM-DD")
+    const enddate = moment(`${previousenddate}`)
+      .subtract(1, "days")
+      .format("YYYY-MM-DD");
     const startdate = moment(`${enddate}`)
-      .subtract(8, "days")
-      .calendar();
-    const startdateformat = moment(`${startdate}`).format("YYYY-MM-DD");
-    console.log(startdateformat);
+      .subtract(9, "days")
+      .format("YYYY-MM-DD");
     const responseapod = await axios.get(
-      `https://api.nasa.gov/planetary/apod?api_key=YPnh5fLrnPlqbVeCN86tba4qEEqrh9DrlLgkphhS&start_date=${startdateformat}&end_date=${enddate}`
+      `https://api.nasa.gov/planetary/apod?api_key=YPnh5fLrnPlqbVeCN86tba4qEEqrh9DrlLgkphhS&start_date=${startdate}&end_date=${enddate}`
     );
-    console.log(responseapod);
     imagesdata = responseapod.data;
+    imagesdata.reverse();
     this.setState(prevState => ({
       data: prevState.data.concat(imagesdata),
-      startdate: startdateformat
+      startdate: startdate
     }));
   };
 
   render() {
+    console.log(this.state.data);
     return (
-      <View>
+      <View style={styles.display}>
         <DisplayApodslist images={this.state.data} />
-        <LoadMore onclick={this.loadMore} />
+        <View style={styles.button}>
+          <Button onPress={this.loadMore} title="Load More Images" />
+        </View>
       </View>
     );
   }
